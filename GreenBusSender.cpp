@@ -264,7 +264,7 @@ void readAndSend(){
 	FILE *file;
 	while(1){
 		double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
-		file = fopen("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/AdafruitGPSdata.txt", "r");
+		file = fopen("./AdafruitGPSdata.txt", "r");
 		if (file == NULL) {
 			printf("AdafruitGPSdata.txt open failed!\n");
 			delay(321);
@@ -287,7 +287,7 @@ void readAndSend(){
 		prevGPSCount = GPSFileCount;
 		printf("GPS data: %d %lf %lf %lf %lf\n", GPSFileCount, GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle);
 		//moveToLocal();
-		file = fopen("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt", "r");
+		file = fopen("./phoneData.txt", "r");
 		if (file == NULL){
 			printf("phoneData.txt open failed\n");
 			delay(321);
