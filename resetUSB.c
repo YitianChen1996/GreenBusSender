@@ -7,8 +7,7 @@
 #include <sys/ioctl.h>
 #include <linux/usbdevice_fs.h>
 
-void main(int argc, char **argv)
-{
+void main(int argc, char **argv) {
     const char *filename;
     int fd;
 
