@@ -246,7 +246,7 @@ void changeDoubletoIEEE(double *dp, unsigned char *&ret) {
 
 void addInttoBuf(int a, unsigned char *&ret) {
     unsigned char temp[8];
-    sprintf((char *)temp, "%03d", a);
+    sprintf((char *)temp, "%04d", a);
     strcat((char *)ret, (char *)temp);
 }
 
@@ -315,7 +315,7 @@ void readAndSend() {
         sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
         printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
         memset(buff, 0, sizeof(unsigned char) * 140);
-        if (pkt_num >= 999) {
+        if (pkt_num >= 9999) {
             pkt_num = 0;
         }
         pkt_num++;

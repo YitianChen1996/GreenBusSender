@@ -68,7 +68,7 @@ bool checkValidFile() { //to check phoneData.txt is a valid file, if not, make u
         return true;
     } else {
         ofstream fp("phoneData.txt");
-        ofstream << "0 0 0 0 0";
+        fp << "0 0 0 0 0";
         fp.close();
 		return false;
     }
