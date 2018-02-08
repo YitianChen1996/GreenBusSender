@@ -1,3 +1,28 @@
+//
+//                       _oo0oo_
+//                      o8888888o
+//                      88" . "88
+//                      (| -_- |)
+//                      0\  =  /0
+//                    ___/`---'\___
+//                  .' \\|     |// '.
+//                 / \\|||  :  |||// \
+//                / _||||| -:- |||||- \
+//               |   | \\\  -  /// |   |
+//               | \_|  ''\---/''  |_/ |
+//               \  .-\__  '-'  ___/-. /
+//             ___'. .'  /--.--\  `. .'___
+//          ."" '<  `.___\_<|>_/___.' >' "".
+//         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+//         \  \ `_.   \_ __\ /__ _/   .-` /  /
+//     =====`-.____`.___ \_____/___.-`___.-'=====
+//                       `=---='
+//
+//
+//     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//               佛祖保佑         永无BUG
+
 #include <string.h>
 #include <unistd.h>
 #include <iostream>
@@ -6,11 +31,17 @@
 
 using namespace std;
 
-const char dataFileLoc_fopen[150] = "/run/user/1000/gvfs/mtp:host=%5Busb%3A001%2C007%5D/Internal shared storage/data.txt";
+// set the freqency and the bus number here!!!!!!!!!!!
+// 747 923100000
+// 748 923300000
+// 762 923500000
+// 763 923700000
+// reserved 923900000
+uint32_t frequency = 923100000;
+int busNum = 747;
 
 uint8_t error;
 uint8_t power = 15;
-uint32_t frequency = 923700000;
 char spreading_factor[] = "sf12";
 char coding_rate[] = "4/5";
 uint16_t bandwidth = 125;
@@ -225,20 +256,20 @@ void restartGPS() {
     system("sudo python ./gpstest.py &");
 }
 
-bool readGPSData(double &GPSlatitudeDegrees, double &GPSlongitudeDegrees,
-                 double &GPSspeed, double &GPSangle, int &GPSFileCount) {
-    char GPSFileline[128];
-    file = fopen("./AdafruitGPSdata.txt", "r");
-    if (file == nullptr) {
-        printf("AdafruitGPSdata.txt open failed!\n");
-        return false;
-    }
-    memset(GPSFileline, 0, sizeof(GPSFileline));
-    fgets(GPSFileline, sizeof(GPSFileline), file);
-    fclose(file);
-    sscanf(GPSFileline, "%d %lf %lf %lf %lf", &GPSFileCount, &GPSlatitudeDegrees, &GPSlongitudeDegrees, &GPSspeed, &GPSangle);
-    return true;
-}
+// bool readGPSData(double &GPSlatitudeDegrees, double &GPSlongitudeDegrees,
+//                  double &GPSspeed, double &GPSangle, int &GPSFileCount) {
+//     char GPSFileline[128];
+//     file = fopen("./AdafruitGPSdata.txt", "r");
+//     if (file == nullptr) {
+//         printf("AdafruitGPSdata.txt open failed!\n");
+//         return false;
+//     }
+//     memset(GPSFileline, 0, sizeof(GPSFileline));
+//     fgets(GPSFileline, sizeof(GPSFileline), file);
+//     fclose(file);
+//     sscanf(GPSFileline, "%d %lf %lf %lf %lf", &GPSFileCount, &GPSlatitudeDegrees, &GPSlongitudeDegrees, &GPSspeed, &GPSangle);
+//     return true;
+// }
 
 void readAndSend() {
     unsigned char *buff;
@@ -249,54 +280,55 @@ void readAndSend() {
     while (1) {
         double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
 
-        bool success = true;
-        success = readGPSData(GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, GPSFileCount);
+        // bool success = true;
+        // success = readGPSData(GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, GPSFileCount);
 
-        if (!ret) {
-            printf("AdafruitGPSdata.txt open failed!\n");
-            delay(300);
-            continue;
-        }
-
-        if (GPSFileCount == prevGPSCount) {
-            sameGPSCount++;
-            if (sameGPSCount == 5) {
-                printf("GPS seems dead, restarting it\n");
-                restartGPS();
-                sameGPSCount = 0;
-            }
-        } else {
-            sameGPSCount = 0;
-        }
-        prevGPSCount = GPSFileCount;
-        printf("GPS data: %d %lf %lf %lf %lf\n", GPSFileCount, GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle);
-        //
-        //moveToLocal();
-        // file = fopen("./phoneData.txt", "r");
-        // if (file == NULL) {
-        //     printf("phoneData.txt open failed\n");
-        //     delay(321);
+        // if (!ret) {
+        //     printf("AdafruitGPSdata.txt open failed!\n");
+        //     delay(300);
         //     continue;
         // }
-        // memset(PhoneLine, 0, sizeof(PhoneLine));
-        // fgets(PhoneLine, sizeof(PhoneLine), file);
-        // fclose(file);
-        // sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
-        // printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
+
+        // if (GPSFileCount == prevGPSCount) {
+        //     sameGPSCount++;
+        //     if (sameGPSCount == 5) {
+        //         printf("GPS seems dead, restarting it\n");
+        //         restartGPS();
+        //         sameGPSCount = 0;
+        //     }
+        // } else {
+        //     sameGPSCount = 0;
+        // }
+        // prevGPSCount = GPSFileCount;
+        // printf("GPS data: %d %lf %lf %lf %lf\n", GPSFileCount, GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle);
+        //
+        moveToLocal();
+        file = fopen("./phoneData.txt", "r");
+        if (file == NULL) {
+            printf("phoneData.txt open failed\n");
+            delay(321); //delay a random time
+            continue;
+        }
+        memset(PhoneLine, 0, sizeof(PhoneLine));
+        fgets(PhoneLine, sizeof(PhoneLine), file);
+        fclose(file);
+        sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
+        printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
         memset(buff, 0, sizeof(unsigned char) * 140);
         if (pkt_num >= 999) {
             pkt_num = 0;
         }
         pkt_num++;
+        addInttoBuf(busNum, buff);
         addInttoBuf(pkt_num, buff);
-        changeDoubletoIEEE(&GPSlatitudeDegrees, buff);
-        changeDoubletoIEEE(&GPSlongitudeDegrees, buff);
-        changeDoubletoIEEE(&GPSspeed, buff);
-        changeDoubletoIEEE(&GPSangle, buff);
-        // changeDoubletoIEEE(&Phonelatitude, buff);
-        // changeDoubletoIEEE(&Phonelongitude, buff);
-        // changeDoubletoIEEE(&Phonespeed, buff);
-        // changeDoubletoIEEE(&Phoneangle, buff);
+        // changeDoubletoIEEE(&GPSlatitudeDegrees, buff);
+        // changeDoubletoIEEE(&GPSlongitudeDegrees, buff);
+        // changeDoubletoIEEE(&GPSspeed, buff);
+        // changeDoubletoIEEE(&GPSangle, buff);
+        changeDoubletoIEEE(&Phonelatitude, buff);
+        changeDoubletoIEEE(&Phonelongitude, buff);
+        changeDoubletoIEEE(&Phonespeed, buff);
+        changeDoubletoIEEE(&Phoneangle, buff);
         int ret;
         ret = sendbuff((char *)buff);
         delay(5000);

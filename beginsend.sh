@@ -1,5 +1,5 @@
 # fuser -k /dev/ttyUSB0
 # tput reset > /dev/ttyUSB0
-# ./moveFile &
-sudo python ./gpstest.py &
+# sudo python ./gpstest.py &
+./moveFile &
 sudo ./GreenBusSender.cpp_exe
