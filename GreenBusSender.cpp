@@ -37,8 +37,8 @@ using namespace std;
 // 762 923500000
 // 763 923700000
 // reserved 923900000
-uint32_t frequency = 923100000;
-int busNum = 747;
+uint32_t frequency = 923300000;
+int busNum = 748;
 
 uint8_t error;
 uint8_t power = 15;
@@ -212,12 +212,6 @@ void init() {
     setup();
 }
 
-void moveToLocal() {
-    printf("run mv\n");
-    //system("cp phoneData.txt ../");
-    //system("cp /run/user/1000/gvfs/mtp:host=%5Busb%3A001%2C011%5D/Internal\\ shared\\ storage/Download/data.txt ./");
-}
-
 int sendbuff(char *buff) {
     //printf("%s\n", buff);
     error = LoRaWAN.sendRadio(buff);
@@ -302,11 +296,10 @@ void readAndSend() {
         // prevGPSCount = GPSFileCount;
         // printf("GPS data: %d %lf %lf %lf %lf\n", GPSFileCount, GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle);
         //
-        moveToLocal();
-        file = fopen("./phoneData.txt", "r");
+        file = fopen("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt", "r");
         if (file == NULL) {
             printf("phoneData.txt open failed\n");
-            delay(321); //delay a random time
+            delay(3210); //delay a random time
             continue;
         }
         memset(PhoneLine, 0, sizeof(PhoneLine));

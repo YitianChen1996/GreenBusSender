@@ -39,8 +39,8 @@ bool updateNum(const vector<string> &v) {
 }
 
 void findPort() {
-    system("lsusb > portList.txt");
-    ifstream fp("portList.txt");
+    system("lsusb > /home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/portList.txt");
+    ifstream fp("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/portList.txt");
     string thisLine;
     vector<string> v;
     while (getline(fp, thisLine)) {
@@ -54,7 +54,7 @@ void findPort() {
 }
 
 bool checkValidFile() { //to check phoneData.txt is a valid file, if not, make up some data to satisfy the main program
-    ifstream fp("phoneData.txt");
+    ifstream fp("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt");
     string thisLine;
     int cnt = 0;
     getline(fp, thisLine);
@@ -67,7 +67,7 @@ bool checkValidFile() { //to check phoneData.txt is a valid file, if not, make u
     if (cnt >= 4) {
         return true;
     } else {
-        ofstream fp("phoneData.txt");
+        ofstream fp("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt");
         fp << "0 0 0 0 0";
         fp.close();
 		return false;
@@ -80,9 +80,11 @@ int main() {
     int a, b;
     while (1) {
         findPort();
-        string cmds = "cp /run/user/1000/gvfs/mtp:host=%5Busb%3A" + busNum +
+        system("sudo rm -rf /home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt");
+        string cmds = "cat /run/user/1000/gvfs/mtp:host=%5Busb%3A" + busNum +
                       "%2C" + portNum +
-                      "%5D/Internal\\ shared\\ storage/Download/data.txt /home/pi/Desktop/GreenBusSender/phoneData.txt";
+                      "%5D/Internal\\ shared\\ storage/Download/data.txt > /home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt";
+        //cout << cmds << endl;
         cout << busNum << endl;
         cout << portNum << endl;
         char *cmdc;
