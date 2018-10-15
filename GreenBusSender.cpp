@@ -36,19 +36,20 @@ using namespace std;
 // 748 923300000
 // 762 923500000
 // 763 923700000
-// reserved 923900000
-uint32_t frequency = 923300000;
-int busNum = 748;
+// reserved 922900000
+uint32_t frequency = 923100000;
+int busNum = 747;
+uint8_t block_size = 0;
 
 uint8_t error;
 uint8_t power = 15;
-char spreading_factor[] = "sf12";
+char spreading_factor[5] = "sf7";
 char coding_rate[] = "4/5";
 uint16_t bandwidth = 125;
 char crc_mode[] = "on";
 FILE *lockFile, *dataFile;
 uint8_t sock = SOCKET0;
-unsigned char pkt_num = 0;
+uint8_t pkt_num = 0;
 
 uint8_t radioModuleSetup() {
     uint8_t status = 0;
@@ -96,10 +97,11 @@ uint8_t radioModuleSetup() {
 
     // Set frequency
     e = LoRaWAN.setRadioFreq(frequency);
+    printf("frequency: %d\n", frequency);
     if (e == 0) {
         printf("4.1. Set Radio Frequency OK\n");
     } else {
-        printf("4.1. Set Radio Frequency error = %d\n", error);
+        printf("4.1. Set Radio Frequency error = %d\n", e);
         status = 1;
     }
 
@@ -308,9 +310,6 @@ void readAndSend() {
         sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
         printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
         memset(buff, 0, sizeof(unsigned char) * 140);
-        if (pkt_num >= 9999) {
-            pkt_num = 0;
-        }
         pkt_num++;
         addInttoBuf(busNum, buff);
         addInttoBuf(pkt_num, buff);
@@ -322,9 +321,36 @@ void readAndSend() {
         changeDoubletoIEEE(&Phonelongitude, buff);
         changeDoubletoIEEE(&Phonespeed, buff);
         changeDoubletoIEEE(&Phoneangle, buff);
-        int ret;
-        ret = sendbuff((char *)buff);
-        delay(5000);
+        int err = sendbuff((char *)buff);
+        //delay(1000);
+
+        /* Request for SF */
+        if (block_size == 0 || pkt_num < block_size) continue;
+        pkt_num = 0;
+        LoRaWAN.setRadioSF((char *)"sf12");
+        LoRaWAN.setRadioCR((char *)"4/8");
+        char ackbuff[8];
+        sprintf(ackbuff, "CAAC%02X", busNum & 0xFF);
+        sendbuff(ackbuff);
+        err = LoRaWAN.receiveRadio(3000);
+        if (err == 0) {
+            uint8_t i, rxpkt[4], tmpchr[3]={0};
+            for (i=0; i<4; i++) {
+                memcpy(tmpchr, LoRaWAN._buffer + i*2, 2);
+                sscanf((char *)tmpchr, "%X", rxpkt + i);
+            }
+            if (rxpkt[0]!=0xAC || rxpkt[1]!=0xCA || rxpkt[2]!=(busNum&0xFF)) {
+                printf("RESPONSE failed\n");
+                continue;
+            }
+            printf("RESPONSE SF = %u\n", rxpkt[3]);
+            sprintf(spreading_factor, "sf%u", rxpkt[3]);
+        }
+        else if (err == 1) printf("RX error\n");
+        else if (err == 2) printf("RESPONSE missed\n");
+        LoRaWAN.setRadioSF(spreading_factor);
+        LoRaWAN.setRadioCR(coding_rate);
+        delay(1000);
     }
 }
 
