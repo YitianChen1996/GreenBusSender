@@ -37,13 +37,14 @@ using namespace std;
 // 762 923500000
 // 763 923700000
 // reserved 922900000
-uint32_t frequency = 923100000;
-int busNum = 747;
-uint8_t block_size = 0;
+uint32_t frequency = 922900000;
+int busNum = 777;
+uint8_t block_size[6] = {58,35,20,12,6,3}; // 6 seconds for all SF
 
 uint8_t error;
 uint8_t power = 15;
-char spreading_factor[5] = "sf7";
+uint8_t sf_selected = 12; //same initial value as spreading_factor[]
+char spreading_factor[5] = "sf12";
 char coding_rate[] = "4/5";
 uint16_t bandwidth = 125;
 char crc_mode[] = "on";
@@ -325,14 +326,15 @@ void readAndSend() {
         //delay(1000);
 
         /* Request for SF */
-        if (block_size == 0 || pkt_num < block_size) continue;
+        uint8_t bs = block_size[sf_selected - 7];
+        if (bs == 0 || pkt_num < bs) continue;
         pkt_num = 0;
         LoRaWAN.setRadioSF((char *)"sf12");
         LoRaWAN.setRadioCR((char *)"4/8");
         char ackbuff[8];
         sprintf(ackbuff, "CAAC%02X", busNum & 0xFF);
         sendbuff(ackbuff);
-        err = LoRaWAN.receiveRadio(3000);
+        err = LoRaWAN.receiveRadio(2000);
         if (err == 0) {
             uint8_t i, rxpkt[4], tmpchr[3]={0};
             for (i=0; i<4; i++) {
@@ -340,17 +342,18 @@ void readAndSend() {
                 sscanf((char *)tmpchr, "%X", rxpkt + i);
             }
             if (rxpkt[0]!=0xAC || rxpkt[1]!=0xCA || rxpkt[2]!=(busNum&0xFF)) {
-                printf("RESPONSE failed\n");
+                printf("RESPONSE missed\n");
                 continue;
             }
-            printf("RESPONSE SF = %u\n", rxpkt[3]);
-            sprintf(spreading_factor, "sf%u", rxpkt[3]);
+            sf_selected = rxpkt[3];
+            printf("RESPONSE SF = %u\n", sf_selected);
+            sprintf(spreading_factor, "sf%u", sf_selected);
         }
         else if (err == 1) printf("RX error\n");
         else if (err == 2) printf("RESPONSE missed\n");
         LoRaWAN.setRadioSF(spreading_factor);
         LoRaWAN.setRadioCR(coding_rate);
-        delay(1000);
+        //delay(1000);
     }
 }
 
