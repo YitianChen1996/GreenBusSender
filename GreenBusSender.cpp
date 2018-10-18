@@ -23,10 +23,11 @@
 //
 //               佛祖保佑         永无BUG
 
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <iostream>
-#include <stdio.h>
 #include "arduPiLoRaWAN.h"
 
 using namespace std;
@@ -216,15 +217,14 @@ void init() {
 }
 
 int sendbuff(char *buff) {
-    //printf("%s\n", buff);
-    error = LoRaWAN.sendRadio(buff);
-    if (error == 0) {
+    uint8_t err = LoRaWAN.sendRadio(buff);
+    if (err == 0) {
         printf("--> Packet sent OK\n");
         printf("content: %s\nlength: %d\n", buff, strlen(buff));
     } else {
-        printf("Error waiting for packets. error = %d\n", error);
+        printf("Error waiting for packets. error = %d\n", err);
     }
-    return error;
+    return err;
 }
 
 void changeDoubletoIEEE(double *dp, unsigned char *&ret) {
@@ -269,14 +269,13 @@ void restartGPS() {
 // }
 
 void readAndSend() {
-    unsigned char *buff;
     char PhoneLine[128];
     int PhoneFileCount, GPSFileCount, prevGPSCount = 0, sameGPSCount = 0;
-    buff = (unsigned char *)malloc(sizeof(char) * 140);
+    double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
+    uint8_t buff[140], ackbuff[8], rxpkt[4], tmpstr[3]={0};
+    uint8_t bs, i, err;
     FILE *file;
     while (1) {
-        double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
-
         // bool success = true;
         // success = readGPSData(GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, GPSFileCount);
 
@@ -310,7 +309,7 @@ void readAndSend() {
         fclose(file);
         sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
         printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
-        memset(buff, 0, sizeof(unsigned char) * 140);
+        memset(buff, 0, 140);
         pkt_num++;
         addInttoBuf(busNum, buff);
         addInttoBuf(pkt_num, buff);
@@ -322,26 +321,24 @@ void readAndSend() {
         changeDoubletoIEEE(&Phonelongitude, buff);
         changeDoubletoIEEE(&Phonespeed, buff);
         changeDoubletoIEEE(&Phoneangle, buff);
-        int err = sendbuff((char *)buff);
+        sendbuff((char *)buff);
         //delay(1000);
 
         /* Request for SF */
-        uint8_t bs = block_size[sf_selected - 7];
+        bs = block_size[sf_selected - 7];
         if (bs == 0 || pkt_num < bs) continue;
         pkt_num = 0;
         LoRaWAN.setRadioSF((char *)"sf12");
         LoRaWAN.setRadioCR((char *)"4/8");
-        char ackbuff[8];
-        sprintf(ackbuff, "CAAC%02X", busNum & 0xFF);
+        sprintf(ackbuff, "CAAC%02X", busNum % 100);
         sendbuff(ackbuff);
         err = LoRaWAN.receiveRadio(2000);
         if (err == 0) {
-            uint8_t i, rxpkt[4], tmpchr[3]={0};
             for (i=0; i<4; i++) {
-                memcpy(tmpchr, LoRaWAN._buffer + i*2, 2);
-                sscanf((char *)tmpchr, "%X", rxpkt + i);
+                memcpy(tmpstr, LoRaWAN._buffer + i*2, 2);
+                sscanf((char *)tmpstr, "%X", rxpkt + i);
             }
-            if (rxpkt[0]!=0xAC || rxpkt[1]!=0xCA || rxpkt[2]!=(busNum&0xFF)) {
+            if (rxpkt[0]!=0xAC || rxpkt[1]!=0xCA || rxpkt[2]!=(busNum % 100)) {
                 printf("RESPONSE missed\n");
                 continue;
             }
