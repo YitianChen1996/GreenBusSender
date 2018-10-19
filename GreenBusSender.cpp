@@ -330,8 +330,8 @@ void readAndSend() {
         pkt_num = 0;
         LoRaWAN.setRadioSF((char *)"sf12");
         LoRaWAN.setRadioCR((char *)"4/8");
-        sprintf(ackbuff, "CAAC%02X", busNum % 100);
-        sendbuff(ackbuff);
+        sprintf((char *)ackbuff, "CAAC%02X", busNum % 100);
+        sendbuff((char *)ackbuff);
         err = LoRaWAN.receiveRadio(2000);
         if (err == 0) {
             for (i=0; i<4; i++) {
