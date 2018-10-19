@@ -241,10 +241,10 @@ void changeDoubletoIEEE(double *dp, unsigned char *&ret) {
     }
 }
 
-void addInttoBuf(int a, unsigned char *&ret) {
+void addInttoBuf(int a, unsigned char *str) {
     unsigned char temp[8];
     sprintf((char *)temp, "%04d", a);
-    strcat((char *)ret, (char *)temp);
+    strcat((char *)str, (char *)temp);
 }
 
 void restartGPS() {
