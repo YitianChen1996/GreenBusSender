@@ -298,7 +298,7 @@ void readAndSend() {
         // prevGPSCount = GPSFileCount;
         // printf("GPS data: %d %lf %lf %lf %lf\n", GPSFileCount, GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle);
         //
-        file = fopen("/home/pi/Desktop/GreenBusSender/cooking/examples/LoRaWAN/phoneData.txt", "r");
+        file = fopen("phoneData.txt", "r");
         if (file == NULL) {
             printf("phoneData.txt open failed\n");
             delay(3210); //delay a random time
