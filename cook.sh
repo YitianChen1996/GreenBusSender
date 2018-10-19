@@ -6,7 +6,7 @@ cd ..
 BASE_DIR="$(pwd)"
 ARDUPI_DIR="$BASE_DIR/arduPi"
 ARDUPIAPI_DIR="$BASE_DIR/arduPi-api"
-EXAMPLES_DIR="$BASE_DIR/examples/LoRaWAN"
+EXAMPLES_DIR="$BASE_DIR/examples/GreenBusSender"
 LIBRARY_DIR="$BASE_DIR/libraries/arduPiLoRaWAN"
 
 #compile arduPi
