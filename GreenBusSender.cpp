@@ -227,7 +227,7 @@ int sendbuff(char *buff) {
     return err;
 }
 
-void changeDoubletoIEEE(double *dp, unsigned char *&ret) {
+void changeDoubletoIEEE(double *dp, unsigned char *ret) {
     unsigned char *cp;
     cp = (unsigned char *)dp;
     unsigned char temp[8];
@@ -272,7 +272,7 @@ void readAndSend() {
     char PhoneLine[128];
     int PhoneFileCount, GPSFileCount, prevGPSCount = 0, sameGPSCount = 0;
     double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
-    unsigned char buff[140], ackbuff[8], rxpkt[4], tmpstr[3]={0};
+    uint8_t buff[140], ackbuff[8], rxpkt[4], tmpstr[3]={0};
     uint8_t bs, i, err;
     FILE *file;
     while (1) {
