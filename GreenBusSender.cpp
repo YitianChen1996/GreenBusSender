@@ -40,7 +40,7 @@ using namespace std;
 // reserved 922900000
 uint32_t frequency = 922900000;
 int busNum = 777;
-uint8_t block_size[6] = {58,35,20,12,6,3}; // 6 seconds for all SF
+uint8_t block_size[6] = {19,12,7,4,2,1}; // 2 seconds for all SF
 
 uint8_t error;
 uint8_t power = 15;
