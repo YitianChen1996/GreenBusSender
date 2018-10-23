@@ -342,7 +342,7 @@ void readAndSend() {
                 printf("RESPONSE missed\n");
                 continue;
             }
-            sf_selected = rxpkt[3];
+            if (rxpkt[3] >= 7 && rxpkt[3] <= 12) sf_selected = rxpkt[3];
             printf("RESPONSE SF = %u\n", sf_selected);
             sprintf(spreading_factor, "sf%u", sf_selected);
         }
