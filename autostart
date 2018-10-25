@@ -1,0 +1,2 @@
+# put this line in /etc/rc.local, change path if different
+bash -c "cd /home/pi/Desktop/GreenBusSender/cooking/examples/GreenBusSender/ && ./GreenBusSender.cpp_exe & disown -h"
