@@ -41,7 +41,6 @@ using namespace std;
 uint32_t frequency = 922900000;
 int busNum = 777;
 uint8_t block_size[6] = {19,12,7,4,2,1}; // 2 seconds for all SF
-//max blocksize: 100; blocksize==0 to disable SF update
 
 uint8_t error;
 uint8_t power = 15;
@@ -331,7 +330,7 @@ void readAndSend() {
         pkt_num = 0;
         LoRaWAN.setRadioSF((char *)"sf12");
         LoRaWAN.setRadioCR((char *)"4/8");
-        sprintf((char *)ackbuff, "CAAC%02X", busNum % 100);
+        sprintf((char *)ackbuff, "CAAC%02d", busNum % 100);
         sendbuff((char *)ackbuff);
         err = LoRaWAN.receiveRadio(2000);
         if (err == 0) {
