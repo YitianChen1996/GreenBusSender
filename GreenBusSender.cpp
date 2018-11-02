@@ -330,7 +330,7 @@ void readAndSend(uint8_t EN_ACK) {
             sprintf(spreading_factor, "sf%d", sf_selected);
             LoRaWAN.setRadioSF(spreading_factor);
             pkt_num = 0;
-            return;
+            continue;
         }
 
         /* Request for SF */
