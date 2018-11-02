@@ -45,8 +45,8 @@ uint8_t block_size[6] = {58,35,20,12,6,3}; // 6 seconds for all SF
 
 uint8_t error;
 uint8_t power = 15;
-uint8_t sf_selected = 12; //same initial value as spreading_factor[]
-char spreading_factor[5] = "sf12";
+uint8_t sf_selected = 7; //same initial value as spreading_factor[]
+char spreading_factor[5] = "sf7";
 char coding_rate[] = "4/5";
 uint16_t bandwidth = 125;
 char crc_mode[] = "on";
@@ -269,7 +269,7 @@ void restartGPS() {
 //     return true;
 // }
 
-void readAndSend() {
+void readAndSend(uint8_t EN_ACK) {
     char PhoneLine[128];
     int PhoneFileCount, GPSFileCount, prevGPSCount = 0, sameGPSCount = 0;
     double GPSlatitudeDegrees, GPSlongitudeDegrees, GPSspeed, GPSangle, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle;
@@ -311,7 +311,7 @@ void readAndSend() {
         sscanf(PhoneLine, "%d %lf %lf %lf %lf\n", &PhoneFileCount, &Phonelongitude, &Phonelatitude, &Phonespeed, &Phoneangle);
         printf("phone Data: %d %lf %lf %lf %lf\n", PhoneFileCount, Phonelatitude, Phonelongitude, Phonespeed, Phoneangle);
         memset(buff, 0, 140);
-        pkt_num++;
+        if (EN_ACK || sf_selected == 7) pkt_num++;
         addInttoBuf(busNum, buff);
         addInttoBuf(pkt_num, buff);
         // changeDoubletoIEEE(&GPSlatitudeDegrees, buff);
@@ -324,6 +324,14 @@ void readAndSend() {
         changeDoubletoIEEE(&Phoneangle, buff);
         sendbuff((char *)buff);
         //delay(1000);
+
+        if (!EN_ACK) {
+            sf_selected = (sf_selected - 6) % 6 + 7;
+            sprintf(spreading_factor, "sf%d", sf_selected);
+            LoRaWAN.setRadioSF(spreading_factor);
+            pkt_num = 0;
+            return;
+        }
 
         /* Request for SF */
         bs = block_size[sf_selected - 7];
@@ -355,8 +363,8 @@ void readAndSend() {
     }
 }
 
-int main() {
+int main(int argn, char* argv[]) {
     init();
-    readAndSend();
+    readAndSend(argn == 2);
     return 0;
 }
