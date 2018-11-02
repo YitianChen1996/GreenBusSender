@@ -329,7 +329,7 @@ void readAndSend(uint8_t EN_ACK) {
             sf_selected = (sf_selected - 6) % 6 + 7;
             sprintf(spreading_factor, "sf%d", sf_selected);
             LoRaWAN.setRadioSF(spreading_factor);
-            pkt_num = 0;
+            if (pkt_num == 99 && sf_selected == 7) pkt_num = 0;
             continue;
         }
 
