@@ -214,6 +214,7 @@ void setup() {
 }
 
 void init() {
+    system("date >> restarts.log");
     setup();
 }
 
